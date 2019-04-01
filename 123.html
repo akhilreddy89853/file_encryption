@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>Get Directory</title>
+    <!-- Update your jQuery version??? -->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="assets/aes.js"></script>
+    <script> // type="text/javascript" is unnecessary in html5
+
+    // Short version of doing `$(document).ready(function(){`
+    // and safer naming conflicts with $
+    jQuery(function($) { 
+
+        $('#file-input').on('change', function() {
+
+            // You can't use the same reader for all the files
+            // var reader = new FileReader
+
+            $.each(this.files, function(i, file) {
+
+                // Uses different reader for all files
+                var reader = new FileReader
+
+                reader.onload = function() {
+                    // reader.result refer to dataUrl
+                    // theFile is the blob... CryptoJS wants a string...
+                    var encrypted = CryptoJS.AES.encrypt(reader.result, '12334')
+                    alert('Encryption complete');
+                    
+                    var blob = new Blob([encrypted], {type:"application/octet-stream"});
+                    var a = document.createElement("a");
+                    document.body.appendChild(a);
+                    var url = window.URL.createObjectURL(blob);
+                        a.href = url;
+                        a.download = this.filename;
+                        a.click();
+                    this.progress.complete();
+
+                    
+                }
+
+                reader.readAsDataURL(file)
+                $('#thelist').append('FILES: ' + file.name + '<br>')
+            })
+        })
+    })
+    </script>
+</head>
+<body>
+    <input type="file" id="file-input" webkitdirectory="" directory="">
+    <div id="thelist"></div>
+</body>
+</html>
